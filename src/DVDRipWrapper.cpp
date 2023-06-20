@@ -258,13 +258,13 @@ BList * DVDRipWrapper::GetFiles(const char* volume_name)
                 char string[1024];
                 memset( string, 0, 1024 );
                 if( dvdripfile->size > 1024 * 1024 )
-                    sprintf( string, "%s (%lld MB)", dvdripfile->name,
+                    sprintf( string, "%s (%ld MB)", dvdripfile->name,
                              dvdripfile->size / ( 1024 * 1024 ) );
                 else if( dvdripfile->size > 1024 )
-                    sprintf( string, "%s (%lld KB)", dvdripfile->name,
+                    sprintf( string, "%s (%ld KB)", dvdripfile->name,
                              dvdripfile->size / 1024 );
                 else
-                    sprintf( string, "%s (%lld bytes)", dvdripfile->name,
+                    sprintf( string, "%s (%ld bytes)", dvdripfile->name,
                              dvdripfile->size );
                 list->AddItem( new BStringItem( strdup( string ) ) );
             }
