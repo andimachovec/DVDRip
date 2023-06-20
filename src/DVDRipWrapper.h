@@ -19,7 +19,7 @@ class DVDRipTitle
         DVDRipTitle( int index, ssize_t length )
             { this->index = index;
               this->length = length; }
-    
+
         int     index;
         ssize_t length;
 };
@@ -28,7 +28,7 @@ class DVDRipFile
 {
     public:
         DVDRipFile() { memset( name, 0, B_FILE_NAME_LENGTH ); }
-        
+
         char name[B_FILE_NAME_LENGTH];
         off_t size;
 };
@@ -44,9 +44,9 @@ class DVDRipVolume
               fTitlesList = NULL;
               fFilesList = NULL; }
 
-        char *  volume_name;
-        char *  device_name;
-        char *  video_folder;
+        const char*  volume_name;
+        const char*  device_name;
+        const char*  video_folder;
         BList * fTitlesList;
         BList * fFilesList;
 };
@@ -55,23 +55,23 @@ class DVDRipWrapper
 {
     public:
         DVDRipWrapper();
-        
+
         bool               Rip();
         BList *            GetVolumes( bool force );
-        BList *            GetTitles( char * volume_name );
-        BList *            GetFiles( char * volume_name );
-        
+        BList *            GetTitles(const char* volume_name);
+        BList *            GetFiles(const char* volume_name);
+
         BList *            fVolumesList;
 
         // infos from the interface
         bool               fFilesInsteadOfTitles;
-        char *             fSelectedVolume;
+        const char*        fSelectedVolume;
         int                fSelectedTitle;
         bool               fWriteToFile;    // true if file, false if stdout
-        char *             fDestinationFile;
+        const char*   	   fDestinationFile;
         bool               fEncodeToMpeg4;
         BList *            fSelectedList;
-        char *             fDestinationFolder;
+        const char*        fDestinationFolder;
         volatile float     fStatus;
         volatile float     fSpeed;
         volatile long long fTotal;          // bytes

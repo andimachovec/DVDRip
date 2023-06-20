@@ -35,7 +35,7 @@ BList * DVDRipWrapper::GetVolumes( bool force )
             delete fVolumesList;
         }
         fVolumesList = new BList( MAX_VOLUMES_NUMBER );
-        
+
         // parse mounted volumes
         BVolumeRoster * roster = new BVolumeRoster();
         BVolume * volume = new BVolume();
@@ -45,29 +45,29 @@ BList * DVDRipWrapper::GetVolumes( bool force )
         int i_device;
         device_geometry geometry;
         DVDRipVolume * dvdripvolume;
-    
+
         while( roster->GetNextVolume( volume ) == B_NO_ERROR )
         {
             // only keep read-only ones
             if( volume->GetName( volume_name ) != B_OK ||
                 !volume->IsReadOnly() )
                 continue;
-        
+
             // open() and ioctl() for more informations
             device = volume->Device();
             fs_stat_dev( device, &info );
             i_device = open( info.device_name, O_RDONLY );
-        
+
             if( i_device < 0 )
                 continue;
-            
+
             if( ioctl( i_device, B_GET_GEOMETRY, &geometry,
                        sizeof( geometry ) ) < 0 )
                 continue;
-            
+
             if( geometry.device_type != B_CD )
                 continue;
-        
+
             // check for a non-empty VIDEO_TS folder (not case sensitive)
             BString path;
             path << "/" << volume_name;
@@ -87,19 +87,19 @@ BList * DVDRipWrapper::GetVolumes( bool force )
 
             if( !folder_found )
                 continue;
-        
+
             // this is a DVD, yoohoo !
             dvdripvolume = new DVDRipVolume( (char*)volume_name,
                                              (char*)info.device_name,
                                              video_folder );
             fVolumesList->AddItem( dvdripvolume );
-        
+
             // update titles and files information
             GetTitles( dvdripvolume->volume_name );
             GetFiles( dvdripvolume->volume_name );
         }
     }
-    
+
     // return a list of BMenuItems for pop-ups
     BList * list = new BList( MAX_VOLUMES_NUMBER );
     DVDRipVolume * dvdripvolume;
@@ -117,7 +117,7 @@ BList * DVDRipWrapper::GetVolumes( bool force )
     return list;
 }
 
-BList * DVDRipWrapper::GetTitles( char * volume_name )
+BList * DVDRipWrapper::GetTitles(const char* volume_name)
 {
     // show a tiny alert window to inform the user we are scanning
     // the drives (this can take some time)
@@ -137,7 +137,7 @@ BList * DVDRipWrapper::GetTitles( char * volume_name )
     scanstring->SetAlignment( B_ALIGN_CENTER );
     scanview->AddChild( scanstring );
     scanwin->AddChild( scanview );
-    
+
     // center it
     BScreen screen;
     scanwin->MoveTo( ( screen.Frame().Width() -
@@ -160,7 +160,7 @@ BList * DVDRipWrapper::GetTitles( char * volume_name )
             if( !dvdripvolume->fTitlesList )
             {
                 dvdripvolume->fTitlesList = new BList( MAX_TITLES_NUMBER );
-                
+
                 // parse the titles
                 dvd_reader_t * dvd_reader;
                 dvd_file_t * dvd_file;
@@ -203,11 +203,11 @@ BList * DVDRipWrapper::GetTitles( char * volume_name )
             // select the first item
             if( list->CountItems() )
             ((BMenuItem*)list->ItemAt( 0 ))->SetMarked( true );
-    
+
             break;
         }
     }
-    
+
     // remove the scan alert
     scanwin->Lock();
     scanwin->Quit();
@@ -215,7 +215,7 @@ BList * DVDRipWrapper::GetTitles( char * volume_name )
     return list;
 }
 
-BList * DVDRipWrapper::GetFiles( char * volume_name )
+BList * DVDRipWrapper::GetFiles(const char* volume_name)
 {
     // find the right DVDRipVolume
     BList * list = NULL;
@@ -238,7 +238,7 @@ BList * DVDRipWrapper::GetFiles( char * volume_name )
                     << "/" << dvdripvolume->video_folder;
                 BDirectory directory( path.String() );
                 BEntry entry;
-                
+
                 while( directory.GetNextEntry( &entry ) == B_OK )
                 {
                     dvdripfile = new DVDRipFile();
@@ -247,7 +247,7 @@ BList * DVDRipWrapper::GetFiles( char * volume_name )
                     dvdripvolume->fFilesList->AddItem( dvdripfile );
                 }
             }
-            
+
             // return a list of BStringItems for the BListView
             list = new BList( MAX_FILES_NUMBER );
             DVDRipFile * dvdripfile;
@@ -268,7 +268,7 @@ BList * DVDRipWrapper::GetFiles( char * volume_name )
                              dvdripfile->size );
                 list->AddItem( new BStringItem( strdup( string ) ) );
             }
-    
+
             break;
         }
     }
@@ -299,7 +299,7 @@ bool DVDRipWrapper::Rip()
     thread_id id = spawn_thread( RipThread, "rip thread",
                                  B_LOW_PRIORITY, this );
     resume_thread( id );
-    
+
     return true;
 }
 
@@ -337,7 +337,7 @@ int32 RipThread( void * info )
         w->fStatus = -1;
         return -1;
     }
-    
+
     // do the job
     if( w->fFilesInsteadOfTitles )
         RipFiles( w, dvd_reader );
@@ -345,18 +345,18 @@ int32 RipThread( void * info )
         RipTitles( w, dvd_reader );
 
     if( dvd_reader ) { DVDClose( dvd_reader ); dvd_reader = NULL; }
-    
+
     if( w->fCanceled )
         message = new BMessage( RIP_CANCELED );
     else
         message = new BMessage( RIP_DONE );
-    
+
     be_app->PostMessage( message );
     if( message ) { delete message; message = NULL; }
-    
+
     w->fStatus = -1;
     w->fCanceled = false;
-    
+
     return 0;
 }
 
@@ -373,12 +373,12 @@ void RipTitles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
         w->fStatus = -1;
         return;
     }
-    
+
     int length = DVDFileSize( dvd_file );
     w->fTotal = (long long)length * DVD_VIDEO_LB_LEN;
     if( w->fLimit > 0 && w->fTotal > w->fLimit * 1024 * 1024 )
         length = w->fLimit * 1024 * 1024 / DVD_VIDEO_LB_LEN;
-    
+
     BFile * file = NULL;
     if( w->fWriteToFile )
     {
@@ -410,7 +410,7 @@ void RipTitles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
     {
         int blocks = DVDFileSize( dvd_file ) - offset < BLOCKS_READ_ONCE ?
                          DVDFileSize( dvd_file ) - offset : BLOCKS_READ_ONCE;
-    
+
         // read
         if( DVDReadBlocks( dvd_file, offset, blocks, buffer ) < 0 )
         {
@@ -451,9 +451,9 @@ void RipTitles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
         }
         else
             fwrite( buffer, DVD_VIDEO_LB_LEN, blocks, stdout );
-        
+
         offset += blocks;
-        
+
         // update the slider and speed
         w->fStatus = (float)offset / (float)length;
         gettimeofday( &tv, NULL );
@@ -470,7 +470,7 @@ void RipTitles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
         be_app->PostMessage( message );
         if( message ) { delete message; message = NULL; }
     }
-    
+
     // close
     if( dvd_file ) { DVDCloseFile( dvd_file ); dvd_file = NULL; }
     if( file ) { delete file; file = NULL; }
@@ -492,7 +492,7 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
         if( !strcmp( dvdripvolume->volume_name, w->fSelectedVolume ) )
             break;
     }
- 
+
     // calculate total size
     int index = 0;
     BStringItem * item;
@@ -506,7 +506,7 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
         while( *tmp && *tmp != ' ' )
             tmp++;
         *tmp = '\0';
-        
+
         DVDRipFile * dvdripfile;
         for( int i = 0;
              ( dvdripfile = (DVDRipFile*)dvdripvolume->fFilesList->ItemAt( i ) );
@@ -517,7 +517,7 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
         }
         index++;
     }
-    
+
     // now rip the files
     index = 0;
     while( ( item = (BStringItem*)w->fSelectedList->ItemAt( index ) ) )
@@ -530,7 +530,7 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
         while( *tmp && *tmp != ' ' )
             tmp++;
         *tmp = '\0';
-        
+
         // get file type
         if( !strcasecmp( name + 8, ".BUP" ) )
             domain = DVD_READ_INFO_BACKUP_FILE;
@@ -540,7 +540,7 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
             domain = DVD_READ_TITLE_VOBS;
         else
             domain = DVD_READ_MENU_VOBS;
-        
+
         // get title
         if( !strncasecmp( name, "VIDEO_TS", 8 ) )
             title = 0;
@@ -551,11 +551,11 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
             memcpy( titlestring, name + 4, 2 );
             title = atoi( titlestring );
         }
-        
+
         // get offset and size (UGLY !)
         int offset = 0;
         int length = 0;
-        
+
         DVDRipFile * dvdripfile;
         for( int i = 0;
              ( dvdripfile = (DVDRipFile*)dvdripvolume->fFilesList->ItemAt( i ) );
@@ -563,13 +563,13 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
         {
             if( !strcmp( dvdripfile->name, name ) )
                 length = dvdripfile->size / DVD_VIDEO_LB_LEN;
-            
+
             if( domain == DVD_READ_TITLE_VOBS && title > 0 )
             {
                 char * tmpname = dvdripfile->name;
                 dvd_read_domain_t tmpdomain;
                 int tmptitle;
-            
+
                 // get file type
                 if( !strcasecmp( tmpname + 8, ".BUP" ) )
                     tmpdomain = DVD_READ_INFO_BACKUP_FILE;
@@ -579,7 +579,7 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
                     tmpdomain = DVD_READ_TITLE_VOBS;
                 else
                     tmpdomain = DVD_READ_MENU_VOBS;
-        
+
                 // get title
                 if( !strncasecmp( tmpname, "VIDEO_TS", 8 ) )
                     tmptitle = 0;
@@ -590,15 +590,15 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
                     memcpy( titlestring, tmpname + 4, 2 );
                     tmptitle = atoi( titlestring );
                 }
-            
+
                 if( tmpdomain != domain || tmptitle != title )
                     continue;
-               
+
                 if( tmpname[7] < name[7] )
                     offset += dvdripfile->size / DVD_VIDEO_LB_LEN;
             }
         }
-        
+
         // open the destination file
         BString path;
         path << w->fDestinationFolder << "/" << name;
@@ -630,7 +630,7 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
             w->fStatus = -1;
             return;
         }
-      
+
         // needed for speed evaluation
         struct timeval tv;
         gettimeofday( &tv, NULL );
@@ -646,14 +646,14 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
         {
             int blocks = end - offset < BLOCKS_READ_ONCE ?
                              end - offset : BLOCKS_READ_ONCE;
-    
+
             // read
             int result;
             if( domain == DVD_READ_INFO_FILE || domain == DVD_READ_INFO_BACKUP_FILE )
                 result = DVDReadBytes( dvd_file, buffer, blocks*DVD_VIDEO_LB_LEN );
             else
                 result = DVDReadBlocks( dvd_file, offset, blocks, buffer );
-            
+
             if( result < 0 )
             {
                 BAlert * alert;
@@ -688,9 +688,9 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
                 w->fStatus = -1;
                 return;
             }
-        
+
             offset += blocks;
-        
+
             // update the slider and speed
             w->fStatus += DVD_VIDEO_LB_LEN * (float)blocks / (float)w->fTotal;
             gettimeofday( &tv, NULL );
@@ -707,13 +707,13 @@ void RipFiles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
             be_app->PostMessage( message );
             delete message;
         }
-    
+
         // close
         if( dvd_file )
             DVDCloseFile( dvd_file );
         if( file )
             delete file;
-        
+
         index++;
     }
 }
