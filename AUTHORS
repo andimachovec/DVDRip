@@ -1,0 +1,6 @@
+# The fields are: name (N), email (E), web-address (W), CVS account login (C),
+# PGP key ID and fingerprint (P), description (D), and snail-mail address (S).
+
+N: Eric Petit
+E: titer@videolan.org
+D: original code

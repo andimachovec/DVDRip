@@ -1,0 +1,43 @@
+ChangeLog for DVDRip
+
+1.0
+Fri, 28 Mar 2003
+  * Minor fixes and improvements
+  * libdvdread and libdvdcss updated to 0.9.4 and 1.2.6
+
+0.9
+Thu, 13 Feb 2003
+  * Back to the libdvdread/libdvdcss method, which is quite more flexible.
+  * CLI and GUI mode are available
+  * GUI allows to easily rip DVD titles or DVD files
+  * Cleaner code, more tests; this release should be pretty more usable/stable than old ones
+  * Includes a basic documentation for use with Ffmpeg
+
+0.5
+Fri, 31 Jan 2003
+
+  * DVDRip no longer uses directly libdvdcss and libdvdread. All this code has been trashed, now DVDRip is no more than a front-end for the ripping capability of the VideoLAN client 0.5
+  * It can send the data on the standard output
+
+0.4
+Tue, 12 Nov 2002
+
+  * Now DVDRip automatically changes the libdvdcss method if something goes wrong
+  * Minor improvements
+
+0.3
+Sat, 9 Nov 2002
+
+  * Added the capability to rip DVD titles into single files
+  * Minor fixes and improvements
+
+0.2
+Fri, 8 Nov 2002
+
+  * Added a status window
+  * Added a separate thread for the rip process
+
+0.1
+Tue, 5 Nov 2002
+
+  * First version.

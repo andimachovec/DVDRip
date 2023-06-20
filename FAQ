@@ -1,0 +1,54 @@
+What do "Titles" and "Files" tabs mean ?
+
+With the "Titles" tab, you can rip entire DVD titles into single files. Usually, the first title of a DVD is the movie itself, the second one is a first bonus, etc.
+If you prefer to rip VOB files, switch to the second tab "Files".
+
+What can I do with DVDRip with the command line interface ?
+
+You can only rip DVD titles with the command line, not DVD files.
+
+Currently, the options are:
+	-title <title number>	(specify title; default is 1)
+	-file <path to file>	(specify the destination file; default is /boot/home/Desktop/movie)
+	-stdout				(write to standard output instead of file)
+	-limit <number>		(stop after reading <number> megabytes from the DVD)
+
+You cannot choose the DVD volume you want to read from. DVDRip automatically rips the first mounted volume it finds (hopefully few people have several DVD drives ;)
+
+
+How do I convert a DVD movie to an AVI file in one step ?
+
+Warning: this works on BeOS/BONE, not on BeOS R5. Untested on Dano & friends.
+
+Download and install Ffmpeg.
+Then, start DVDRip in a Terminal with such a command line:
+	./DVDRip -stdout | ffmpeg -i - /boot/home/Desktop/movie.avi
+
+Ffmpeg features many options. It is a good idea to set them to get a better quality. For instance:
+	./DVDRip -stdout | ffmpeg -i - -f avi -s 720x416 -vcodec mpeg4 -b 1000 -acodec mp3 -ab 128 /boot/home/Desktop/movie.avi
+
+Have a look at -qmin and -qmax too. Run `ffmpeg -h' or check http://ffmpeg.sourceforge.net/ffmpeg-doc.html for explanations about these options. Remember you can make use of the `-limit' DVDRip option to test them on small pieces of video.
+
+
+Will DVDRip include a full GUI for MPEG-4 encoding soon ?
+
+Sorry, it is not planned anymore. I don't have enough time and motivation to implement this. Moreover, the CLI method is more flexible with respect to forthcoming Ffmpeg's evolutions.
+
+Anyway, Ffmpeg, libdvdcss, libdvdread and DVDRip are opensource software; feel free to enhance them or use code from them. If someone wants to enhance DVDRip with such a feature, I would be glad to help him/her.
+
+
+DVDRip hangs while trying to read the DVD
+
+Try to read the same DVD with VLC media player.
+	- if it hangs too, you probably found a libdvdcss issue. You can report it to the VideoLAN team at http://bugzilla.videolan.org/.
+	- If VLC manages to play it, then it is a DVDRip problem: report it at titer@videolan.org.
+
+
+DVDRip slows down my system a lot / DVDRip brings me to KDL
+
+You probably need this : http://www.betips.net/chunga.php?ID=708.
+
+
+I got "No accelerated IMDCT transform found"  messages from Ffmpeg
+
+Actually it does not come from Ffmpeg, but from liba52 which is included in it. It is related to the decoding of the AC3 sound track. Most of the time you see this message only once or twice, and it has no undesirable effect. If it has, contact Ffmpeg or liba52 guys (http://ffmpeg.sf.net and http://a52.sf.net).

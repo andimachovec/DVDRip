@@ -1,0 +1,26 @@
+What is this program ?
+
+DVDRip is a DVD ripper for BeOS based on libdvdcss and libdvdread. It reads data from DVDs (even encrypted ones) and copy them on the hard drive.
+
+I wrote none of the decryption code. If you want to print some possibly-illegal source code on your T-shirt, print libdvdcss' one ;)
+
+
+How do I use DVDRip ?
+
+The FAQ file should include all the indications you'll need.
+
+
+Contact
+
+Homepage: <http://beos.titer.org/dvdrip/>
+Author: Eric Petit <titer@videolan.org>
+
+
+About libdvdcss
+
+libdvdcss (<http://developers.videolan.org/libdvdcss/> is a part of the VideoLAN project (<http://www.videolan.org/>). It is a simple library designed for accessing DVDs like a block device without having to bother about the decryption. 
+
+
+About libdvdread
+
+libdvdread is a part of the Ogle project (<http://www.dtek.chalmers.se/groups/dvd/>). It provides a simple foundation for reading DVD video disks. It parses IFO files, reads NAV-blocks, and performs CSS authentication and descrambling using libdvdcss.
