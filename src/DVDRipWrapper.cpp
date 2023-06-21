@@ -7,6 +7,7 @@
 #include <dvdread/dvd_reader.h> // libdvdread
 #include <stdlib.h>             // atoi()
 #include <sys/time.h>
+#include <iostream>
 
 #include "DVDRipApp.h"          // APP_NAME
 
@@ -412,7 +413,13 @@ void RipTitles( DVDRipWrapper * w, dvd_reader_t * dvd_reader )
                          DVDFileSize( dvd_file ) - offset : BLOCKS_READ_ONCE;
 
         // read
-        if( DVDReadBlocks( dvd_file, offset, blocks, buffer ) < 0 )
+		ssize_t blocks_read = DVDReadBlocks(dvd_file, offset, blocks, buffer); 	
+
+		std::cout << "reading " << blocks << " blocks at offset " << offset << 
+				  ": " << blocks_read << " blocks read" << std::endl;
+		
+		
+		if( blocks_read < 0 )
         {
             BAlert * alert;
             alert = new BAlert( APP_NAME, "Cannot read block", "Argh !" );
